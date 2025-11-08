@@ -1,0 +1,33 @@
+﻿import express from "express";
+import {
+    register,
+    login,
+    changePassword,
+    recoverPassword,
+    verifyCode,
+    resetPassword,
+} from "../controllers/usersController.js";
+
+const router = express.Router();
+
+// ==================== RUTAS DE USUARIOS ====================
+
+// Registro
+router.post("/register", register);
+
+// Inicio de sesión
+router.post("/login", login);
+
+// Cambiar contraseña desde perfil
+router.put("/change-password", changePassword);
+
+// Recuperar contraseña (envío de correo con código)
+router.post("/recover-password", recoverPassword);
+
+// Verificar código enviado por correo
+router.post("/verify-code", verifyCode);
+
+// Restablecer contraseña luego de verificar código
+router.post("/reset-password", resetPassword);
+
+export default router;
