@@ -1,0 +1,27 @@
+# Archivos del entorno
+.env
+
+# Dependencias de Node.js
+node_modules/
+
+# Archivos subidos manualmente
+uploads/
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# Archivos de compilación
+dist/
+build/
+
+# Configuración del editor
+.vscode/
+.idea/
