@@ -1,7 +1,8 @@
 import fs from "fs";
 import path from "path";
 import jwt from "jsonwebtoken";
-import { db } from "../db.js";
+import db from "../db.js";
+
 
 const baseDir = path.join(process.cwd(), "uploads", "manhwas");
 
@@ -122,10 +123,11 @@ export const obtenerManhwas = (req, res) => {
                 ? fs.readFileSync(descPath, "utf8").trim()
                 : "Sin descripción disponible.";
 
-            // Leer portada
+            // Leer portada (URL completa)
             const portada = fs.existsSync(path.join(dir, "portada.png"))
-                ? `/uploads/manhwas/${nombre}/portada.png`
+                ? `${res.locals.baseUrl}/uploads/manhwas/${nombre}/portada.png`
                 : null;
+
 
             // Leer metadata
             let meta = {};
@@ -201,7 +203,10 @@ export const listarCapitulos = (req, res) => {
             const imagenes = fs.readdirSync(capDir).filter(f => /\.(png|jpg|jpeg|webp)$/i.test(f));
             return {
                 nombre: d.name,
-                portada: imagenes.length > 0 ? `/uploads/manhwas/${nombre}/${d.name}/${imagenes[0]}` : null,
+                portada: imagenes.length > 0
+                    ? `${res.locals.baseUrl}/uploads/manhwas/${nombre}/${d.name}/${imagenes[0]}`
+                    : null,
+
             };
         })
         .sort((a, b) => parseInt(a.nombre.replace(/\D/g, "")) - parseInt(b.nombre.replace(/\D/g, "")));
@@ -223,7 +228,8 @@ export const obtenerImagenesCapitulo = (req, res) => {
     const imagenes = fs.readdirSync(capDir)
         .filter(f => /\.(png|jpg|jpeg|webp)$/i.test(f))
         .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-        .map(f => `/uploads/manhwas/${nombre}/${capitulo}/${f}`);
+        .map(f => `${res.locals.baseUrl}/uploads/manhwas/${nombre}/${capitulo}/${f}`);
+
 
     res.json({ nombre, capitulo, total: imagenes.length, imagenes });
 };
