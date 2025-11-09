@@ -1,6 +1,7 @@
 ﻿document.addEventListener("DOMContentLoaded", () => {
     const API_USERS = "http://localhost:3000/api/users";
-    const API_MANHWAS = "http://localhost:3000/api/manhwas";
+    const API = "https://manhwashaven.onrender.com/api";
+
 
     // ==================== REGISTRO ====================
     const registerForm = document.getElementById("register-form");
