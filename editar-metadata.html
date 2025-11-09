@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Metadata - Manhwas Haven</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1><a href="index.html"><span class="manhwas">MANHWAS</span> <span class="haven">HAVEN</span></a></h1>
+    </header>
+
+    <main class="admin-container">
+        <h2>Editar Metadata</h2>
+
+        <label for="nombre">Selecciona Manhwa:</label>
+        <select id="nombre"></select>
+
+        <div id="form-container" style="display:none;">
+            <label>Tipo:</label>
+            <input type="text" id="tipo" placeholder="Manhwa, Manga o Manhua">
+
+            <label>Demografía:</label>
+            <select id="demografia">
+                <option>Shonen</option>
+                <option>Seinen</option>
+                <option>Shojo</option>
+                <option>Josei</option>
+            </select>
+
+            <label>Estado:</label>
+            <select id="estado">
+                <option>En emisión</option>
+                <option>Finalizado</option>
+                <option>Pausado</option>
+            </select>
+
+            <label>¿Contiene contenido erótico?</label>
+            <select id="erotico">
+                <option value="false">No</option>
+                <option value="true">Sí</option>
+            </select>
+
+            <label>Géneros:</label>
+            <div id="generos-container" class="tags-grid"></div>
+
+            <button id="guardar" class="auth-btn">💾 Guardar cambios</button>
+        </div>
+
+        <p id="mensaje"></p>
+    </main>
+
+    <script>
+        const API = "http://localhost:3000/api/manhwas";
+        const nombreSelect = document.getElementById("nombre");
+        const form = document.getElementById("form-container");
+        const msg = document.getElementById("mensaje");
+        const generosDiv = document.getElementById("generos-container");
+
+        const NO_EROTICOS = [
+            "Acción", "Aventura", "Comedia", "Drama", "Fantasía", "Romance",
+            "Vida Cotidiana", "Paranormal", "Conmovedor", "Suspenso", "Deportes",
+            "Terror", "Ciencia Ficción", "Superhéroes", "Histórico", "Misterio", "Informativo"
+        ];
+
+        const ADULTOS = [
+            "Romance adulto", "Sensual", "BDSM", "Fetichismo", "Dominación", "Sumisión",
+            "Harem", "Reverse Harem", "Cosplay", "Maduros", "Oficina", "Profesor-Adultos",
+            "Maid-Adultos", "Masaje", "Idols-Adultos", "Ambientación Histórica Adulta",
+            "Fantasía Adulta", "Tentacular-Ficción", "Roleplay", "Exhibicionismo-Ficción"
+        ];
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await cargarLista();
+            nombreSelect.addEventListener("change", cargarMetadata);
+            document.getElementById("erotico").addEventListener("change", renderGeneros);
+            document.getElementById("guardar").addEventListener("click", guardarCambios);
+        });
+
+        async function cargarLista() {
+            const res = await fetch(API);
+            const manhwas = await res.json();
+            nombreSelect.innerHTML = `<option value="">Selecciona...</option>` +
+                manhwas.map(m => `<option value="${m.nombre}">${m.nombre}</option>`).join("");
+        }
+
+        async function cargarMetadata() {
+            const nombre = nombreSelect.value;
+            if (!nombre) {
+                form.style.display = "none";
+                return;
+            }
+            const res = await fetch(API);
+            const manhwas = await res.json();
+            const manhwa = manhwas.find(m => m.nombre === nombre);
+
+            if (!manhwa) {
+                msg.textContent = "❌ No se encontró metadata para este manhwa.";
+                return;
+            }
+
+            form.style.display = "block";
+            document.getElementById("tipo").value = manhwa.tipo || "";
+            document.getElementById("demografia").value = manhwa.demografia || "Shonen";
+            document.getElementById("estado").value = manhwa.estado || "En emisión";
+            document.getElementById("erotico").value = manhwa.erotico ? "true" : "false";
+            renderGeneros();
+            setTimeout(() => {
+                marcarGeneros(manhwa.generos || []);
+            }, 200);
+        }
+
+        function renderGeneros() {
+            const esErotico = document.getElementById("erotico").value === "true";
+            const lista = esErotico ? ADULTOS : NO_EROTICOS;
+            generosDiv.innerHTML = lista.map(g =>
+                `<label><input type="checkbox" value="${g}"> ${g}</label>`
+            ).join("");
+        }
+
+        function marcarGeneros(generos) {
+            document.querySelectorAll("#generos-container input").forEach(chk => {
+                chk.checked = generos.includes(chk.value);
+            });
+        }
+
+        async function guardarCambios() {
+            const nombre = nombreSelect.value;
+            const generos = [...document.querySelectorAll("#generos-container input:checked")].map(c => c.value);
+            const data = {
+                tipo: document.getElementById("tipo").value.trim(),
+                demografia: document.getElementById("demografia").value,
+                estado: document.getElementById("estado").value,
+                erotico: document.getElementById("erotico").value === "true",
+                generos
+            };
+
+            try {
+                const res = await fetch(`${API}/${encodeURIComponent(nombre)}/metadata`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                msg.textContent = result.msg || "✅ Cambios guardados correctamente.";
+            } catch {
+                msg.textContent = "❌ Error al guardar cambios.";
+            }
+        }
+    </script>
+</body>
+</html>

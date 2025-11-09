@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Manhwa - Manhwas Haven</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header>
+        <h1><a href="index.html"><span class="manhwas">MANHWAS</span> <span class="haven">HAVEN</span></a></h1>
+    </header>
+
+    <main>
+        <div id="info"></div>
+        <div id="lista"></div>
+        <div id="lector"></div>
+    </main>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const nombre = params.get("nombre");
+        const API = "http://localhost:3000/api/manhwas";
+        let capitulos = [];
+
+        document.addEventListener("DOMContentLoaded", cargarManhwa);
+
+        async function cargarManhwa() {
+            const infoDiv = document.getElementById("info");
+            const listaDiv = document.getElementById("lista");
+
+            try {
+                const res = await fetch(`${API}`);
+                const manhwas = await res.json();
+                const manhwa = manhwas.find(m => m.nombre === nombre);
+
+                if (!manhwa) {
+                    infoDiv.innerHTML = "<p>No se encontró el manhwa solicitado.</p>";
+                    return;
+                }
+
+                // Encabezado con portada, tipo, demografía y descripción
+                infoDiv.innerHTML = `
+            <div class="manhwa-header">
+              <div class="manhwa-cover">
+                <div class="manhwa-type">${manhwa.tipo?.toUpperCase() || "SIN TIPO"}</div>
+                <img src="http://localhost:3000${manhwa.portada || ''}" alt="${manhwa.nombre}">
+                <div class="manhwa-bottom">${manhwa.demografia || "N/A"}</div>
+              </div>
+              <div class="manhwa-details">
+                <h2>${manhwa.nombre}</h2>
+                <p class="descripcion">${manhwa.descripcion || "Sin descripción disponible."}</p>
+                <p><strong>Estado:</strong> ${manhwa.estado || "Sin definir"}</p>
+                <p><strong>Géneros:</strong> ${manhwa.generos?.join(", ") || "N/A"}</p>
+              </div>
+            </div>
+          `;
+
+                // Cargar capítulos
+                const capsRes = await fetch(`${API}/${encodeURIComponent(nombre)}/capitulos`);
+                const data = await capsRes.json();
+                capitulos = data.capitulos || [];
+
+                if (!capitulos.length) {
+                    listaDiv.innerHTML = "<p>No hay capítulos disponibles.</p>";
+                    return;
+                }
+
+                listaDiv.innerHTML = `
+            <h3>Capítulos disponibles</h3>
+            <div class="chapter-list">
+              ${capitulos.map(c => `
+                <div class="chapter-item">
+                  <img src="http://localhost:3000${c.portada}" alt="${c.nombre}">
+                  <span>${c.nombre.replace("capitulo-", "Capítulo ")}</span>
+                  <a href="#" data-cap="${c.nombre}" class="leer-link">Leer</a>
+                </div>
+              `).join("")}
+            </div>
+          `;
+
+                document.querySelectorAll(".leer-link").forEach(link => {
+                    link.addEventListener("click", e => {
+                        e.preventDefault();
+                        mostrarCapitulo(e.target.dataset.cap);
+                    });
+                });
+
+            } catch (err) {
+                infoDiv.innerHTML = "<p>Error cargando la información del manhwa.</p>";
+                console.error(err);
+            }
+        }
+
+        async function mostrarCapitulo(cap) {
+            const lectorDiv = document.getElementById("lector");
+            document.getElementById("lista").style.display = "none";
+
+            try {
+                const res = await fetch(`${API}/${encodeURIComponent(nombre)}/${encodeURIComponent(cap)}`);
+                const data = await res.json();
+
+                lectorDiv.innerHTML = `
+            <div class="nav-buttons">
+              <button id="volver">Volver</button>
+              <h3>${cap.replace("capitulo-", "Capítulo ")}</h3>
+            </div>
+            <div class="chapter-viewer">
+              ${data.imagenes.map(img => `<img src="http://localhost:3000${img}" alt="${cap}">`).join("")}
+            </div>
+          `;
+
+                document.getElementById("volver").onclick = () => {
+                    lectorDiv.innerHTML = "";
+                    document.getElementById("lista").style.display = "block";
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                };
+
+            } catch (err) {
+                lectorDiv.innerHTML = "<p>Error cargando las imágenes del capítulo.</p>";
+                console.error(err);
+            }
+        }
+    </script>
+
+</body>
+</html>
+
+

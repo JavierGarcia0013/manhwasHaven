@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verificar Código - Manhwas Haven</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+</head>
+
+<body>
+    <header>
+        <div class="top-bar">
+            <h1>
+                <a href="index.html"><span class="manhwas">MANHWAS</span> <span class="haven">HAVEN</span></a>
+            </h1>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Buscar..." />
+            </div>
+            <div class="user-actions" id="user-actions">
+                <a href="iniciar-sesion.html" class="user-btn">Iniciar Sesión</a>
+                <a href="registrarse.html" class="user-btn highlight">Registrar</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="auth-container">
+        <h2>Verificar Código</h2>
+        <form id="verify-form" class="auth-form">
+            <label for="codigo">Código enviado al correo:</label>
+            <input type="text" id="codigo" maxlength="6" required autocomplete="one-time-code" />
+
+            <button type="submit" class="auth-btn">Verificar código</button>
+
+            <p class="alt-option">
+                ¿No recibiste el código?
+                <a href="recuperar.html" class="highlight-link">Reenviar</a>
+            </p>
+        </form>
+    </main>
+
+    <footer>
+        <p>© 2025 Manhwas Haven - Todos los derechos reservados.</p>
+    </footer>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Validar si el usuario vino del flujo correcto (tiene recoverEmail)
+            if (!localStorage.getItem("recoverEmail")) {
+                alert("⚠️ Primero solicita el código desde la página de recuperación.");
+                window.location.href = "recuperar.html";
+            }
+        });
+    </script>
+
+</body>
+</html>

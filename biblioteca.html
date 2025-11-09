@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Biblioteca - Manhwas Haven</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <h1><a href="index.html"><span class="manhwas">MANHWAS</span> <span class="haven">HAVEN</span></a></h1>
+        </div>
+    </header>
+
+    <main class="biblioteca-container">
+        <h2>Biblioteca</h2>
+
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Buscar por nombre de manhwa...">
+            <button id="search-btn">Buscar</button>
+        </div>
+
+        <section id="filtros" class="filtros-modern">
+            <div class="grupo-filtro">
+                <h4>¿Erótico?</h4>
+                <div class="tags" id="erotico-tags">
+                    <span data-value="false">No</span>
+                    <span data-value="true">Sí</span>
+                </div>
+            </div>
+
+            <div class="grupo-filtro">
+                <h4>Géneros</h4>
+                <div class="tags" id="genero-tags"></div>
+            </div>
+
+            <button id="btn-limpiar" class="limpiar-btn">Limpiar</button>
+        </section>
+
+        <div id="manhwa-list" class="grid"></div>
+
+        <div class="pagination">
+            <button id="prev-page" class="page-btn">Anterior</button>
+            <span id="page-info"></span>
+            <button id="next-page" class="page-btn">Siguiente</button>
+        </div>
+    </main>
+
+    <script>
+        const API = "http://localhost:3000/api/manhwas";
+        const seleccion = { erotico: [], genero: [] };
+        const ITEMS_POR_PAGINA = 50;
+        let paginaActual = 1;
+        let manhwasTotales = [];
+        let terminoBusqueda = "";
+
+        const NO_EROTICOS = [
+            "Acción", "Aventura", "Comedia", "Drama", "Fantasía", "Romance",
+            "Vida Cotidiana", "Paranormal", "Conmovedor", "Suspenso", "Deportes",
+            "Terror", "Ciencia Ficción", "Superhéroes", "Histórico", "Misterio", "Informativo"
+        ];
+
+        const ADULTOS = [
+            "Romance adulto", "Sensual", "BDSM", "Fetichismo", "Dominación", "Sumisión",
+            "Harem", "Reverse Harem", "Cosplay", "Maduros", "Oficina", "Profesor-Adultos",
+            "Maid-Adultos", "Masaje", "Idols-Adultos", "Ambientación Histórica Adulta",
+            "Fantasía Adulta", "Tentacular-Ficción", "Roleplay", "Exhibicionismo-Ficción"
+        ];
+
+        const generoTags = document.getElementById("genero-tags");
+
+        function renderGeneros() {
+            const esErotico = seleccion.erotico.includes("true");
+            const lista = esErotico ? ADULTOS : NO_EROTICOS;
+            generoTags.innerHTML = lista.map(g => `<span data-value="${g}">${g}</span>`).join("");
+            activarEventosTags();
+        }
+
+        function activarEventosTags() {
+            document.querySelectorAll(".tags span").forEach(tag => {
+                tag.onclick = () => {
+                    tag.classList.toggle("activo");
+                    const grupo = tag.parentElement.id.split('-')[0];
+                    const valor = tag.dataset.value;
+                    const arr = seleccion[grupo];
+                    const i = arr.indexOf(valor);
+                    i >= 0 ? arr.splice(i, 1) : arr.push(valor);
+                    if (grupo === "erotico") renderGeneros();
+                    if (!terminoBusqueda) {
+                        paginaActual = 1;
+                        cargarManhwas();
+                    }
+                };
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderGeneros();
+            activarEventosTags();
+
+            document.getElementById("btn-limpiar").addEventListener("click", () => {
+                Object.keys(seleccion).forEach(k => seleccion[k] = []);
+                document.querySelectorAll(".tags span").forEach(t => t.classList.remove("activo"));
+                document.getElementById("search-input").value = "";
+                terminoBusqueda = "";
+                renderGeneros();
+                paginaActual = 1;
+                cargarManhwas();
+            });
+
+            document.getElementById("search-btn").addEventListener("click", ejecutarBusqueda);
+            document.getElementById("search-input").addEventListener("keypress", e => {
+                if (e.key === "Enter") ejecutarBusqueda();
+            });
+
+            document.getElementById("prev-page").addEventListener("click", () => cambiarPagina(-1));
+            document.getElementById("next-page").addEventListener("click", () => cambiarPagina(1));
+
+            cargarManhwas();
+        });
+
+        function ejecutarBusqueda() {
+            terminoBusqueda = document.getElementById("search-input").value.trim().toLowerCase();
+            paginaActual = 1;
+            cargarManhwas();
+        }
+
+        async function cargarManhwas() {
+            const contenedor = document.getElementById("manhwa-list");
+            contenedor.innerHTML = "<p>Cargando...</p>";
+            const pageInfo = document.getElementById("page-info");
+
+            try {
+                const params = new URLSearchParams();
+                if (!terminoBusqueda) {
+                    if (seleccion.erotico.length) params.set("erotico", seleccion.erotico[0]);
+                    if (seleccion.genero.length) params.set("generos", seleccion.genero.join(","));
+                }
+
+                const res = await fetch(`${API}?${params.toString()}`);
+                let manhwas = await res.json();
+
+                if (terminoBusqueda) {
+                    manhwas = manhwas.filter(m => m.nombre.toLowerCase().includes(terminoBusqueda));
+                }
+
+                manhwasTotales = manhwas;
+                const totalPaginas = Math.ceil(manhwasTotales.length / ITEMS_POR_PAGINA);
+                const inicio = (paginaActual - 1) * ITEMS_POR_PAGINA;
+                const paginados = manhwasTotales.slice(inicio, inicio + ITEMS_POR_PAGINA);
+
+                pageInfo.textContent = `Página ${paginaActual} de ${totalPaginas || 1}`;
+                document.getElementById("prev-page").disabled = paginaActual <= 1;
+                document.getElementById("next-page").disabled = paginaActual >= totalPaginas;
+
+                if (!paginados.length) {
+                    contenedor.innerHTML = "<p>No se encontraron resultados.</p>";
+                    return;
+                }
+
+                const placeholder = "https://via.placeholder.com/300x420?text=Sin+Portada";
+                contenedor.innerHTML = paginados.map(m => `
+              <div class="manhwa-card">
+                <div class="manhwa-type">${m.tipo?.toUpperCase() || "SIN TIPO"}</div>
+                <img src="http://localhost:3000${m.portada || ''}" onerror="this.src='${placeholder}'" alt="${m.nombre}">
+                <div class="manhwa-bottom">${m.demografia || "N/A"}</div>
+                <h3>${m.nombre}</h3>
+                <a href="manhwa.html?nombre=${encodeURIComponent(m.nombre)}" class="leer-btn">Ver detalles</a>
+              </div>
+            `).join("");
+            } catch (err) {
+                console.error(err);
+                contenedor.innerHTML = "<p>Error al conectar con el servidor.</p>";
+            }
+        }
+
+        function cambiarPagina(delta) {
+            paginaActual += delta;
+            cargarManhwas();
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recuperar Contraseña - Manhwas Haven</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+</head>
+
+<body>
+    <header>
+        <div class="top-bar">
+            <h1>
+                <a href="index.html"><span class="manhwas">MANHWAS</span> <span class="haven">HAVEN</span></a>
+            </h1>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Buscar..." />
+            </div>
+            <div class="user-actions" id="user-actions">
+                <a href="iniciar-sesion.html" class="user-btn">Iniciar Sesión</a>
+                <a href="registrarse.html" class="user-btn highlight">Registrar</a>
+            </div>
+        </div>
+
+        <div class="nav-bar">
+            <nav class="nav-links">
+                <a href="index.html">Inicio</a>
+                <a href="biblioteca.html">Biblioteca</a>
+                <a href="mis-manhwas.html">Mis Manhwas</a>
+                <a href="perfil.html">Mi Perfil</a>
+                <a href="subir-manhwa.html" id="btn-subir-manhwa" class="highlight">Subir Manhwa</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="auth-container">
+        <h2>Recuperar Contraseña</h2>
+
+        <form id="recover-form" class="auth-form">
+            <label for="email">Correo registrado:</label>
+            <input type="email" id="email" required />
+
+            <button type="submit" class="auth-btn">Enviar código</button>
+            <p class="alt-option">
+                ¿Ya recordaste tu contraseña?
+                <a href="iniciar-sesion.html" class="highlight-link">Iniciar sesión</a>
+            </p>
+        </form>
+    </main>
+
+    <footer>
+        <p>© 2025 Manhwas Haven - Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>
+

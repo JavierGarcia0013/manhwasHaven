@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Restablecer Contraseña - Manhwas Haven</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+</head>
+
+<body>
+    <header>
+        <div class="top-bar">
+            <h1>
+                <a href="index.html"><span class="manhwas">MANHWAS</span> <span class="haven">HAVEN</span></a>
+            </h1>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Buscar..." />
+            </div>
+            <div class="user-actions" id="user-actions">
+                <a href="iniciar-sesion.html" class="user-btn">Iniciar Sesión</a>
+                <a href="registrarse.html" class="user-btn highlight">Registrar</a>
+            </div>
+        </div>
+
+        <div class="nav-bar">
+            <nav class="nav-links">
+                <a href="index.html">Inicio</a>
+                <a href="biblioteca.html">Biblioteca</a>
+                <a href="mis-manhwas.html">Mis Manhwas</a>
+                <a href="perfil.html">Mi Perfil</a>
+                <a href="subir-manhwa.html" id="btn-subir-manhwa" class="highlight">Subir Manhwa</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="auth-container">
+        <h2>Restablecer Contraseña</h2>
+
+        <form id="reset-form" class="auth-form">
+            <label for="email">Correo electrónico:</label>
+            <input type="email" id="email" required />
+
+            <label for="nuevaPass">Nueva contraseña:</label>
+            <input type="password" id="nuevaPass" required minlength="5" />
+
+            <button type="submit" class="auth-btn">Actualizar contraseña</button>
+
+            <p class="alt-option">
+                ¿Ya recordaste tu contraseña?
+                <a href="iniciar-sesion.html" class="highlight-link">Iniciar sesión</a>
+            </p>
+        </form>
+    </main>
+
+    <footer>
+        <p>© 2025 Manhwas Haven - Todos los derechos reservados.</p>
+    </footer>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Validar si el usuario ya verificó su código
+            if (!localStorage.getItem("recoverEmail")) {
+                alert("⚠️ No tienes una sesión de recuperación activa. Solicita un nuevo código.");
+                window.location.href = "recuperar.html";
+            }
+        });
+    </script>
+
+</body>
+</html>

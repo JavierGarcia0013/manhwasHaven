@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle del Manhwa</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1><a href="biblioteca.html"><span class="manhwas">MANHWAS</span> <span class="haven">HAVEN</span></a></h1>
+    </header>
+
+    <main id="detalle">
+        <h2 id="titulo"></h2>
+        <div id="capitulos-list"></div>
+    </main>
+
+    <script>
+    const params = new URLSearchParams(window.location.search);
+    const nombre = params.get("nombre");
+
+    async function cargarCapitulos() {
+      const res = await fetch(`http://localhost:3000/api/manhwas/${nombre}`);
+      const data = await res.json();
+
+      document.getElementById("titulo").textContent = data.nombre;
+
+      const lista = document.getElementById("capitulos-list");
+      lista.innerHTML = data.capitulos.map(c =>
+        `<button onclick="location.href='lector.html?nombre=${nombre}&capitulo=${c}'">${c}</button>`
+      ).join("");
+    }
+    cargarCapitulos();
+    </script>
+</body>
+</html>

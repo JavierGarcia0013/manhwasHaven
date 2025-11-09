@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lector de Capítulo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1><a href="biblioteca.html"><span class="manhwas">MANHWAS</span> <span class="haven">HAVEN</span></a></h1>
+    </header>
+
+    <main>
+        <h2 id="titulo"></h2>
+        <div id="imagenes"></div>
+        <div id="nav">
+            <button id="prev">Anterior</button>
+            <button id="next">Siguiente</button>
+        </div>
+    </main>
+
+    <script>
+    const params = new URLSearchParams(window.location.search);
+    const nombre = params.get("nombre");
+    let capitulo = params.get("capitulo");
+
+    document.getElementById("titulo").textContent = `${nombre} - ${capitulo}`;
+
+    async function cargarImagenes() {
+      const res = await fetch(`http://localhost:3000/api/manhwas/${nombre}/${capitulo}`);
+      const data = await res.json();
+
+      document.getElementById("imagenes").innerHTML =
+        data.map(src => `<img src="http://localhost:3000${src}" class="pagina">`).join("");
+    }
+
+    document.getElementById("prev").onclick = () => {
+      const num = parseInt(capitulo.split("-")[1]) - 1;
+      if (num >= 1) window.location.href = `lector.html?nombre=${nombre}&capitulo=capitulo-${num}`;
+    };
+    document.getElementById("next").onclick = () => {
+      const num = parseInt(capitulo.split("-")[1]) + 1;
+      window.location.href = `lector.html?nombre=${nombre}&capitulo=capitulo-${num}`;
+    };
+
+    cargarImagenes();
+    </script>
+</body>
+</html>
