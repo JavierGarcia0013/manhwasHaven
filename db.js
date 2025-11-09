@@ -1,51 +1,31 @@
-﻿import mysql from "mysql2";
+﻿import pg from "pg";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-// ==================== CONFIGURACIÓN DE CONEXIÓN ====================
-const dbConfig = {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-};
+const { Pool } = pg;
 
-// ==================== RECONEXIÓN AUTOMÁTICA ====================
-export let db;
+const pool = new Pool({
+    host: process.env.PGHOST,
+    port: process.env.PGPORT,
+    database: process.env.PGDATABASE,
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
+    ssl: { rejectUnauthorized: false },
+});
 
-function handleDisconnect() {
-    db = mysql.createConnection(dbConfig);
+pool.connect()
+    .then(() => console.log("✅ Conectado a la base de datos Supabase"))
+    .catch((err) => console.error("❌ Error al conectar a Supabase:", err.message));
 
-    db.connect(err => {
-        if (err) {
-            console.error("❌ Error al conectar con MySQL:", err.message);
-            // Reintentar conexión cada 2 segundos
-            setTimeout(handleDisconnect, 2000);
-        } else {
-            console.log("✅ Conectado a MySQL correctamente.");
-        }
-    });
+/**
+ * Exportar tanto default como con nombre.
+ * Así funcionan ambos tipos de import:
+ *  import db from "../db.js";
+ *  import { db } from "../db.js";
+ */
+export const db = pool;
+export default pool;
 
-    db.on("error", err => {
-        console.error("⚠️ Error de conexión MySQL:", err.code);
-        if (err.code === "PROTOCOL_CONNECTION_LOST" || err.code === "ECONNRESET") {
-            console.log("🔄 Intentando reconectar a MySQL...");
-            handleDisconnect();
-        } else {
-            throw err;
-        }
-    });
-}
 
-handleDisconnect();
 
-// ==================== PING AUTOMÁTICO CADA 5 MINUTOS ====================
-setInterval(() => {
-    if (db) {
-        db.query("SELECT 1", err => {
-            if (err) console.error("⚠️ Ping fallido:", err.message);
-            else console.log("💓 Conexión viva (ping OK)");
-        });
-    }
-}, 1000 * 60 * 5); // 5 minutos

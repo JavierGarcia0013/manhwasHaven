@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { db } from "../db.js";
+import db from "../db.js";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
