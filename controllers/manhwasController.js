@@ -333,4 +333,37 @@ export const eliminarFavorito = async (req, res) => {
         res.status(500).json({ msg: "Error al eliminar favorito" });
     }
 };
+// 🗑️ Eliminar un manhwa por su ID
+export const eliminarManhwa = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await db.query(
+      `DELETE FROM manhwas WHERE id = $1 RETURNING *`,
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ msg: "No se encontró el manhwa a eliminar" });
+    }
+
+    res.json({ msg: "✅ Manhwa eliminado correctamente", eliminado: result.rows[0] });
+  } catch (err) {
+    console.error("Error al eliminar manhwa:", err);
+    res.status(500).json({ msg: "Error al eliminar manhwa" });
+  }
+};
+
+export {
+    subirManhwa,
+    obtenerManhwas,
+    listarCapitulos,
+    obtenerImagenesCapitulo,
+    actualizarMetadata,
+    obtenerFavoritos,
+    agregarFavorito,
+    eliminarFavorito,
+    eliminarManhwa // ✅ agrega esta línea
+};
+
 
