@@ -52,5 +52,46 @@
         });
     </script>
 
+    <script>
+        document.getElementById("verify-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const codigo = document.getElementById("codigo").value.trim();
+            const correo = localStorage.getItem("recoverEmail");
+
+            if (!correo) {
+                alert("⚠️ No se encontró el correo en sesión. Solicita nuevamente el código.");
+                window.location.href = "recuperar.html";
+                return;
+            }
+
+            if (!codigo) {
+                alert("Por favor ingresa el código de verificación.");
+                return;
+            }
+
+            try {
+                const res = await fetch("https://manhwashaven.onrender.com/api/users/verify-code", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ correo, codigo })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert("✅ Código verificado correctamente. Ahora puedes restablecer tu contraseña.");
+                    window.location.href = "reset.html";
+                } else {
+                    alert(data.msg || "Código inválido o expirado.");
+                }
+            } catch (err) {
+                console.error("❌ Error de conexión:", err);
+                alert("No se pudo conectar con el servidor. Intenta nuevamente.");
+            }
+        });
+    </script>
+
+
 </body>
 </html>

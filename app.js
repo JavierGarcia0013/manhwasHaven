@@ -1,6 +1,8 @@
 ﻿document.addEventListener("DOMContentLoaded", () => {
-    const API_USERS = "http://localhost:3000/api/users";
-    const API = "https://manhwashaven.onrender.com/api";
+    const API_BASE = "https://manhwashaven.onrender.com/api";
+    const API_USERS = `${API_BASE}/users`;
+    const API_MANHWAS = `${API_BASE}/manhwas`;
+
 
 
     // ==================== REGISTRO ====================
@@ -160,7 +162,7 @@
         if (usuarioActual) {
             userActions.innerHTML = `
         <div class="user-info">
-          <span class="user-name">👋 ${usuarioActual.usuario}</span>
+          <span class="user-name"> ${usuarioActual.usuario}</span>
           <a href="#" class="logout-btn" id="logout-btn">Cerrar sesión</a>
         </div>
       `;
@@ -268,7 +270,10 @@
                 card.className = "card";
 
                 // portada puede ser ruta relativa servida desde backend
-                const imgSrc = m.portada ? `http://localhost:3000/${m.portada}` : "img/sin-portada.png";
+                const imgSrc = m.portada
+                    ? `https://manhwashaven.onrender.com/${m.portada}`
+                    : "img/sin-portada.png";
+
 
                 card.innerHTML = `
           <img src="${imgSrc}" alt="${m.titulo}">

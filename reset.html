@@ -66,5 +66,41 @@
         });
     </script>
 
+    <script>
+        document.getElementById("reset-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const correo = document.getElementById("email").value.trim();
+            const nuevaPass = document.getElementById("nuevaPass").value.trim();
+
+            if (!correo || !nuevaPass) {
+                alert("Por favor completa todos los campos.");
+                return;
+            }
+
+            try {
+                const res = await fetch("https://manhwashaven.onrender.com/api/users/reset-password", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ correo, nuevaPass })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert("✅ Contraseña actualizada correctamente. Ahora puedes iniciar sesión.");
+                    localStorage.removeItem("recoverEmail");
+                    window.location.href = "iniciar-sesion.html";
+                } else {
+                    alert(data.msg || "Error al restablecer la contraseña.");
+                }
+            } catch (err) {
+                console.error("❌ Error al conectar con el servidor:", err);
+                alert("No se pudo conectar con el servidor. Intenta nuevamente.");
+            }
+        });
+    </script>
+
+
 </body>
 </html>

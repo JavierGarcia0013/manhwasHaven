@@ -46,8 +46,42 @@
     </main>
 
     <footer>
-        <p>� 2025 MANHWAS HAVEN � Todos los derechos reservados</p>
+        <p>© 2025 MANHWAS HAVEN - Todos los derechos reservados</p>
     </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const usuario = JSON.parse(localStorage.getItem("usuario"));
+            if (!usuario) {
+                document.getElementById("lista-mis-manhwas").innerHTML = "<p>Inicia sesión para ver tus manhwas guardados.</p>";
+                return;
+            }
+
+            try {
+                const res = await fetch(`https://manhwashaven.onrender.com/api/manhwas/favoritos/${usuario.id}`);
+                const manhwas = await res.json();
+
+                if (!manhwas.length) {
+                    document.getElementById("lista-mis-manhwas").innerHTML = "<p>No tienes manhwas guardados aún.</p>";
+                    return;
+                }
+
+                document.getElementById("lista-mis-manhwas").innerHTML = manhwas.map(m => `
+          <div class="manhwa-card">
+            <img src="https://manhwashaven.onrender.com${m.portada}" alt="${m.nombre}">
+            <h3>${m.nombre}</h3>
+            <p>${m.tipo} • ${m.demografia}</p>
+            <button onclick="location.href='detalle-manhwa.html?id=${m.id}'">Ver detalles</button>
+          </div>
+        `).join("");
+            } catch (error) {
+                console.error(error);
+                document.getElementById("lista-mis-manhwas").innerHTML = "<p>Error al cargar tus manhwas.</p>";
+            }
+        });
+    </script>
+
+
 </body>
 </html>
 

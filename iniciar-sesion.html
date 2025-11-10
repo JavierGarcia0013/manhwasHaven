@@ -19,7 +19,7 @@
             </div>
             <div class="user-actions" id="user-actions">
                 <a href="iniciar-sesion.html" class="user-btn">Iniciar Sesión</a>
-                <a href="registrarse.html" class="user-btn highlight">Registrar</a>
+                <a href="registrarse.html" class="user-btn highlight">Registrarse</a>
             </div>
         </div>
 
@@ -57,5 +57,45 @@
     <footer>
         <p>© 2025 Manhwas Haven - Todos los derechos reservados.</p>
     </footer>
+
+    <script>
+        const API = "https://manhwashaven.onrender.com/api";
+
+        document.getElementById("login-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const usuario = document.getElementById("usuario").value.trim();
+            const contrasena = document.getElementById("contrasena").value.trim();
+
+            if (!usuario || !contrasena) {
+                alert("Por favor, completa todos los campos.");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/users/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ usuario, contrasena })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Guardar token en localStorage
+                    localStorage.setItem("token", data.token);
+                    localStorage.setItem("usuario", data.usuario);
+                    alert("Inicio de sesión exitoso. Bienvenido " + data.usuario);
+                    window.location.href = "index.html";
+                } else {
+                    alert(data.msg || "Credenciales incorrectas");
+                }
+            } catch (error) {
+                console.error("Error en inicio de sesión:", error);
+                alert("Error al conectar con el servidor.");
+            }
+        });
+    </script>
+
 </body>
 </html>

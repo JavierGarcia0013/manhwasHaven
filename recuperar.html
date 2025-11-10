@@ -52,6 +52,40 @@
     <footer>
         <p>© 2025 Manhwas Haven - Todos los derechos reservados.</p>
     </footer>
+
+    <script>
+        document.getElementById("recover-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const correo = document.getElementById("email").value.trim();
+
+            if (!correo) {
+                alert("Por favor ingresa tu correo electrónico.");
+                return;
+            }
+
+            try {
+                const res = await fetch("https://manhwashaven.onrender.com/api/users/forgot-password", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ correo })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert("✅ Se ha enviado un enlace o código de recuperación a tu correo.");
+                } else {
+                    alert(data.msg || "No se pudo procesar la solicitud. Verifica el correo ingresado.");
+                }
+            } catch (err) {
+                console.error("❌ Error de conexión:", err);
+                alert("No se pudo conectar con el servidor. Intenta nuevamente.");
+            }
+        });
+    </script>
+
+
 </body>
 </html>
 

@@ -1,0 +1,64 @@
+# ===============================
+# ?? CONFIGURACIÓN GENERAL
+# ===============================
+.env
+node_modules/
+uploads/
+dist/
+build/
+.vscode/
+.idea/
+.vs/
+*.vsidx
+*.cache
+*.tmp
+
+# ===============================
+# ?? ARCHIVOS TEMPORALES DEL SISTEMA
+# ===============================
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===============================
+# ?? COMPILACIONES / DEPLOY
+# ===============================
+coverage/
+tmp/
+.cache/
+out/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ===============================
+# ?? GITHUB / RENDER / DEPLOY
+# ===============================
+# Ignorar archivos locales o secretos de despliegue
+render.yaml
+*.pid
+*.seed
+*.env.backup
+
+# ===============================
+# ?? ARCHIVOS NO NECESARIOS
+# ===============================
+*.zip
+*.rar
+*.tar
+*.7z
+
+# ===============================
+# ?? ESPECÍFICOS DEL FRONTEND
+# ===============================
+# Si usás GitHub Pages o frameworks estáticos
+node_modules/
+.vs/
+.vscode/
+cache/

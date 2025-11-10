@@ -61,17 +61,16 @@
     </main>
 
     <script>
-        const API = "http://localhost:3000/api/manhwas";
+        const API = "https://manhwashaven.onrender.com/api/manhwas";
         const usuarioActual = JSON.parse(localStorage.getItem("usuarioActual") || "null");
 
-        // Listas de géneros
+        // --- Listas de géneros ---
         const NO_EROTICOS = [
             "Acción", "Aventura", "Comedia", "Drama", "Fantasía", "Romance",
             "Vida Cotidiana", "Paranormal", "Conmovedor", "Suspenso", "Deportes",
             "Terror", "Ciencia Ficción", "Superhéroes", "Histórico", "Misterio", "Informativo"
         ];
 
-        // Nota: lista para adultos ejemplar y neutra (evita contenido con menores o ilegal)
         const ADULTOS = [
             "Romance adulto", "Sensual", "BDSM", "Fetichismo", "Dominación",
             "Sumisión", "Harem", "Reverse Harem", "Cosplay", "Maduros",
@@ -80,6 +79,7 @@
             "Roleplay", "Exhibicionismo-Ficción"
         ];
 
+        // --- Renderizar géneros dinámicamente ---
         const eroticoSel = document.getElementById("erotico");
         const generosDiv = document.getElementById("generos-container");
 
@@ -87,69 +87,67 @@
             const lista = eroticoSel.value === "Si" ? ADULTOS : NO_EROTICOS;
             generosDiv.innerHTML = lista.map(g =>
                 `<label style="display:flex;align-items:center;gap:6px">
-             <input type="checkbox" name="generos" value="${g}"/> ${g}
-           </label>`).join("");
+          <input type="checkbox" name="generos" value="${g}"/> ${g}
+         </label>`
+            ).join("");
             generosDiv.style.display = "grid";
         }
 
         eroticoSel.addEventListener("change", renderGeneros);
         document.addEventListener("DOMContentLoaded", renderGeneros);
 
-        async function fileToBase64(file) {
-            if (!file) return null;
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result); // data:image/*;base64,....
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        }
-
+        // --- Envío del formulario ---
         document.getElementById("subir-form").addEventListener("submit", async (e) => {
             e.preventDefault();
+
             if (!usuarioActual?.token) {
-                alert("Debes iniciar sesión como admin para subir.");
+                alert("Debes iniciar sesión como administrador para subir un manhwa.");
                 return;
             }
 
-            const titulo = document.getElementById("titulo").value.trim();
-            const tipo = document.getElementById("tipo").value;
-            const demografia = document.getElementById("demografia").value;
-            const estado = document.getElementById("estado").value;
-            const erotico = document.getElementById("erotico").value === "Si";
-            const descripcion = document.getElementById("descripcion").value.trim();
+            const formData = new FormData();
+            formData.append("titulo", document.getElementById("titulo").value.trim());
+            formData.append("tipo", document.getElementById("tipo").value);
+            formData.append("demografia", document.getElementById("demografia").value);
+            formData.append("estado", document.getElementById("estado").value);
+            formData.append("erotico", document.getElementById("erotico").value === "Si");
+            formData.append("descripcion", document.getElementById("descripcion").value.trim());
+            formData.append("id_usuario", usuarioActual.id);
 
-            const generos = [...document.querySelectorAll('input[name="generos"]:checked')].map(i => i.value);
+            // Agregar géneros
+            const generosSeleccionados = [...document.querySelectorAll('input[name="generos"]:checked')].map(i => i.value);
+            generosSeleccionados.forEach(g => formData.append("generos[]", g));
 
+            // Agregar portada
             const portadaFile = document.getElementById("portadaFile").files[0];
-            const portadaBase64 = await fileToBase64(portadaFile); // puede ser null
+            if (portadaFile) formData.append("portada", portadaFile);
 
-            // id_usuario viene del login
-            const id_usuario = usuarioActual.id;
-
+            // Enviar al backend
             try {
                 const res = await fetch(`${API}/subir`, {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json",
                         "Authorization": `Bearer ${usuarioActual.token}`
                     },
-                    body: JSON.stringify({
-                        titulo, tipo, demografia, estado,
-                        erotico, generos, descripcion,
-                        portada: portadaBase64, id_usuario
-                    })
+                    body: formData
                 });
 
                 const data = await res.json();
-                alert(data.msg || "Listo");
-                if (res.ok) e.target.reset();
+
+                if (res.ok) {
+                    alert("✅ Manhwa subido correctamente.");
+                    e.target.reset();
+                    renderGeneros();
+                } else {
+                    alert(data.msg || "Error al subir el manhwa.");
+                }
             } catch (err) {
-                console.error(err);
-                alert("❌ Error al subir el manhwa.");
+                console.error("❌ Error al conectar con el servidor:", err);
+                alert("No se pudo conectar con el servidor. Intenta nuevamente.");
             }
         });
     </script>
+
 
 </body>
 </html>

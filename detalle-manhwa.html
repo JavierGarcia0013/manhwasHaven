@@ -12,25 +12,64 @@
 
     <main id="detalle">
         <h2 id="titulo"></h2>
+
+        <!-- ⭐ Botón dinámico de favoritos -->
+        <button id="btnFavorito" class="favorito-btn">⭐ Agregar a favoritos</button>
+
         <div id="capitulos-list"></div>
     </main>
 
     <script>
-    const params = new URLSearchParams(window.location.search);
-    const nombre = params.get("nombre");
+        const params = new URLSearchParams(window.location.search);
+        const nombre = params.get("nombre");
+        const usuario = JSON.parse(localStorage.getItem("usuario"));
+        const btnFavorito = document.getElementById("btnFavorito");
 
-    async function cargarCapitulos() {
-      const res = await fetch(`http://localhost:3000/api/manhwas/${nombre}`);
-      const data = await res.json();
+        // ✅ Verifica si el manhwa ya está en favoritos al cargar
+        async function verificarFavorito() {
+            if (!usuario) return;
+            try {
+                const res = await fetch(`https://manhwashaven.onrender.com/api/manhwas/favoritos/${usuario.id}`);
+                const favoritos = await res.json();
+                const existe = favoritos.some(m => m.nombre.toLowerCase() === nombre.toLowerCase());
+                btnFavorito.textContent = existe ? "⭐ Quitar de favoritos" : "⭐ Agregar a favoritos";
+            } catch (err) {
+                console.error("Error al verificar favoritos:", err);
+            }
+        }
 
-      document.getElementById("titulo").textContent = data.nombre;
+        // ✅ Permite agregar o eliminar favoritos en un clic
+        btnFavorito.addEventListener("click", async () => {
+            if (!usuario) {
+                alert("Debes iniciar sesión para usar esta función.");
+                return;
+            }
 
-      const lista = document.getElementById("capitulos-list");
-      lista.innerHTML = data.capitulos.map(c =>
-        `<button onclick="location.href='lector.html?nombre=${nombre}&capitulo=${c}'">${c}</button>`
-      ).join("");
-    }
-    cargarCapitulos();
+            const esFavorito = btnFavorito.textContent.includes("Quitar");
+            const metodo = esFavorito ? "DELETE" : "POST";
+
+            try {
+                const res = await fetch("https://manhwashaven.onrender.com/api/manhwas/favoritos", {
+                    method: metodo,
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        id_usuario: usuario.id,
+                        id_manhwa: nombre // el backend traduce el nombre a id real
+                    })
+                });
+
+                const data = await res.json();
+                alert(data.msg);
+                await verificarFavorito(); // Actualiza el estado del botón
+            } catch (err) {
+                console.error("Error al actualizar favorito:", err);
+            }
+        });
+
+        // ✅ Llama a la función al cargar la página
+        verificarFavorito();
     </script>
+
 </body>
 </html>
+

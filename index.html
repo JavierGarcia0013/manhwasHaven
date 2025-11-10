@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta name="6a97888e-site-verification" content="86b2b810827fe9b4c03002d1331dacf0">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Manhwas Haven - Inicio</title>
@@ -46,12 +47,21 @@
             <p>Explora los títulos más recientes y populares de la comunidad.</p>
         </section>
 
+        <section id="destacados" class="carousel-section">
+            <h2>📚 Destacados</h2>
+            <div class="carousel-container">
+                <button id="prev" class="carousel-btn">‹</button>
+                <div id="carousel" class="carousel"></div>
+                <button id="next" class="carousel-btn">›</button>
+            </div>
+        </section>
+
+
         <section id="ultimos-manhwas" class="grid">
             <!-- Aquí se cargarán los manhwas más recientes -->
         </section>
-        <div id="ultimos-manhwas"></div>
         <script>
-            fetch("http://localhost:3000/api/manhwas")
+            fetch("https://manhwashaven.onrender.com/api/manhwas")
                 .then(res => res.json())
                 .then(manhwas => {
                     const recientes = manhwas.filter(m => {
@@ -63,15 +73,51 @@
                     const cont = document.getElementById("ultimos-manhwas");
                     cont.innerHTML = recientes.length
                         ? recientes.map(m => `
-        <div class="manhwa-card" style="cursor:pointer" onclick="window.location='manhwa.html?nombre=${m.nombre}&cap=capitulo-1'">
-          <img src="http://localhost:3000${m.portada}" alt="${m.nombre}">
-          <h4>${m.nombre}</h4>
-          <button class="leer-btn">Leer</button>
-        </div>
-      `).join("")
+                                <div class="manhwa-card" style="cursor:pointer" onclick="window.location='manhwa.html?nombre=${m.nombre}&cap=capitulo-1'">
+                                 <img src="https://manhwashaven.onrender.com${m.portada}" alt="${m.nombre}">
+                                  <h4>${m.nombre}</h4>
+                                  <button class="leer-btn">Leer</button>
+                                </div>
+                              `).join("")
                         : "<p>No hay nuevos manhwas recientes.</p>";
                 });
 
+        </script>
+        <script>
+            async function cargarDestacados() {
+                try {
+                    const res = await fetch("https://manhwashaven.onrender.com/api/manhwas");
+                    const manhwas = await res.json();
+
+                    // Simulación de "más leídos": los primeros 10
+                    const destacados = manhwas.slice(0, 10);
+
+                    const carousel = document.getElementById("carousel");
+                    carousel.innerHTML = destacados.map(m => `
+                      <div class="carousel-item" onclick="window.location='manhwa.html?nombre=${m.nombre}'">
+                        <img src="https://manhwashaven.onrender.com${m.portada}" alt="${m.nombre}">
+                        <h4>${m.nombre}</h4>
+                      </div>
+                    `).join("");
+
+                    // Controles del carrusel
+                    let scrollPos = 0;
+                    const scrollStep = 220;
+
+                    document.getElementById("next").onclick = () => {
+                        scrollPos = Math.min(scrollPos + scrollStep, carousel.scrollWidth - carousel.clientWidth);
+                        carousel.scrollTo({ left: scrollPos, behavior: "smooth" });
+                    };
+                    document.getElementById("prev").onclick = () => {
+                        scrollPos = Math.max(scrollPos - scrollStep, 0);
+                        carousel.scrollTo({ left: scrollPos, behavior: "smooth" });
+                    };
+                } catch (err) {
+                    console.error("Error al cargar destacados:", err);
+                }
+            }
+
+            cargarDestacados();
         </script>
 
     </main>
@@ -79,5 +125,19 @@
     <footer>
         <p>© 2025 Manhwas Haven - Todos los derechos reservados.</p>
     </footer>
+    <script>
+        const user = localStorage.getItem("usuario");
+        if (user) {
+            document.getElementById("user-actions").innerHTML = `
+        <span>Hola, ${user}</span>
+        <a href="#" onclick="cerrarSesion()">Cerrar sesión</a>
+      `;
+        }
+
+        function cerrarSesion() {
+            localStorage.clear();
+            window.location.reload();
+        }
+    </script>
 </body>
 </html>

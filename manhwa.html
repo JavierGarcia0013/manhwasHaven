@@ -19,7 +19,7 @@
     <script>
         const params = new URLSearchParams(window.location.search);
         const nombre = params.get("nombre");
-        const API = "http://localhost:3000/api/manhwas";
+        const API = "https://manhwashaven.onrender.com/api";
         let capitulos = [];
 
         document.addEventListener("DOMContentLoaded", cargarManhwa);
@@ -29,7 +29,7 @@
             const listaDiv = document.getElementById("lista");
 
             try {
-                const res = await fetch(`${API}`);
+                const res = await fetch(`${API}/manhwas`);
                 const manhwas = await res.json();
                 const manhwa = manhwas.find(m => m.nombre === nombre);
 
@@ -43,7 +43,7 @@
             <div class="manhwa-header">
               <div class="manhwa-cover">
                 <div class="manhwa-type">${manhwa.tipo?.toUpperCase() || "SIN TIPO"}</div>
-                <img src="http://localhost:3000${manhwa.portada || ''}" alt="${manhwa.nombre}">
+                <img src="https://manhwashaven.onrender.com${manhwa.portada || ''}" alt="${manhwa.nombre}">
                 <div class="manhwa-bottom">${manhwa.demografia || "N/A"}</div>
               </div>
               <div class="manhwa-details">
@@ -56,7 +56,7 @@
           `;
 
                 // Cargar capítulos
-                const capsRes = await fetch(`${API}/${encodeURIComponent(nombre)}/capitulos`);
+                const capsRes = await fetch(`${API}/capitulos/${encodeURIComponent(nombre)}`);
                 const data = await capsRes.json();
                 capitulos = data.capitulos || [];
 
@@ -66,22 +66,32 @@
                 }
 
                 listaDiv.innerHTML = `
-            <h3>Capítulos disponibles</h3>
-            <div class="chapter-list">
-              ${capitulos.map(c => `
-                <div class="chapter-item">
-                  <img src="http://localhost:3000${c.portada}" alt="${c.nombre}">
-                  <span>${c.nombre.replace("capitulo-", "Capítulo ")}</span>
-                  <a href="#" data-cap="${c.nombre}" class="leer-link">Leer</a>
-                </div>
-              `).join("")}
-            </div>
-          `;
+  <h3>Capítulos disponibles</h3>
+  <div class="chapter-list">
+    ${capitulos.map((c, i) => `
+      <div class="chapter-item">
+        <img src="https://manhwashaven.onrender.com${c.portada}" alt="${c.nombre}">
+        <span>${c.nombre.replace("capitulo-", "Capítulo ")}</span>
+        <a href="#" 
+           class="leer-link" 
+           data-cap="${c.nombre}" 
+           data-index="${i}" 
+           data-total="${capitulos.length}" 
+           data-list='${JSON.stringify(capitulos)}'>Leer</a>
+      </div>
+    `).join("")}
+  </div>
+`;
+
 
                 document.querySelectorAll(".leer-link").forEach(link => {
                     link.addEventListener("click", e => {
                         e.preventDefault();
-                        mostrarCapitulo(e.target.dataset.cap);
+                        const cap = e.target.dataset.cap;
+                        const index = parseInt(e.target.dataset.index);
+                        const total = parseInt(e.target.dataset.total);
+                        const capitulos = JSON.parse(e.target.dataset.list);
+                        mostrarCapitulo(cap, index, total, capitulos);
                     });
                 });
 
@@ -91,27 +101,50 @@
             }
         }
 
-        async function mostrarCapitulo(cap) {
+        async function mostrarCapitulo(cap, index, totalCapitulos, capitulos) {
             const lectorDiv = document.getElementById("lector");
-            document.getElementById("lista").style.display = "none";
+            const listaDiv = document.getElementById("lista");
+            listaDiv.style.display = "none";
 
             try {
-                const res = await fetch(`${API}/${encodeURIComponent(nombre)}/${encodeURIComponent(cap)}`);
+                const res = await fetch(`${API}/capitulos/imagenes/${encodeURIComponent(cap)}`);
                 const data = await res.json();
 
-                lectorDiv.innerHTML = `
-            <div class="nav-buttons">
-              <button id="volver">Volver</button>
-              <h3>${cap.replace("capitulo-", "Capítulo ")}</h3>
-            </div>
-            <div class="chapter-viewer">
-              ${data.imagenes.map(img => `<img src="http://localhost:3000${img}" alt="${cap}">`).join("")}
-            </div>
-          `;
+                lectorDiv.classList.remove("loaded");
 
+                lectorDiv.innerHTML = `
+      <div class="nav-buttons">
+        <button id="volver">Volver</button>
+        <h3>${cap.replace("capitulo-", "Capítulo ")}</h3>
+        <div class="chapter-nav">
+          <button id="anterior" ${index === 0 ? "disabled" : ""}>⟵ Anterior</button>
+          <button id="siguiente" ${index === totalCapitulos - 1 ? "disabled" : ""}>Siguiente ⟶</button>
+        </div>
+      </div>
+      <div class="chapter-viewer">
+        ${data.map(img => `<img src="https://manhwashaven.onrender.com${img.url_imagen}" alt="${cap}">`).join("")}
+      </div>
+    `;
+
+                // Animación
+                setTimeout(() => {
+                    lectorDiv.querySelector(".chapter-viewer").classList.add("loaded");
+                }, 50);
+
+                // Volver a la lista
                 document.getElementById("volver").onclick = () => {
                     lectorDiv.innerHTML = "";
-                    document.getElementById("lista").style.display = "block";
+                    listaDiv.style.display = "block";
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                };
+
+                // Navegación entre capítulos
+                document.getElementById("anterior").onclick = () => {
+                    mostrarCapitulo(capitulos[index - 1].nombre, index - 1, totalCapitulos, capitulos);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                };
+                document.getElementById("siguiente").onclick = () => {
+                    mostrarCapitulo(capitulos[index + 1].nombre, index + 1, totalCapitulos, capitulos);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                 };
 
@@ -120,6 +153,7 @@
                 console.error(err);
             }
         }
+
     </script>
 
 </body>

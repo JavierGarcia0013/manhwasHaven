@@ -26,13 +26,27 @@
 
     document.getElementById("titulo").textContent = `${nombre} - ${capitulo}`;
 
-    async function cargarImagenes() {
-      const res = await fetch(`http://localhost:3000/api/manhwas/${nombre}/${capitulo}`);
-      const data = await res.json();
+        async function cargarImagenes() {
+            try {
+                const res = await fetch(`https://manhwashaven.onrender.com/api/capitulos/imagenes/${encodeURIComponent(capitulo)}`);
+                const data = await res.json();
 
-      document.getElementById("imagenes").innerHTML =
-        data.map(src => `<img src="http://localhost:3000${src}" class="pagina">`).join("");
-    }
+                const contenedor = document.getElementById("imagenes");
+                contenedor.classList.remove("loaded");
+
+                contenedor.innerHTML = data
+                    .map(img => `<img src="https://manhwashaven.onrender.com${img.url_imagen}" class="pagina">`)
+                    .join("");
+
+                // efecto de aparición suave
+                setTimeout(() => contenedor.classList.add("loaded"), 50);
+            } catch (err) {
+                console.error("Error al cargar imágenes:", err);
+                document.getElementById("imagenes").innerHTML = "<p>Error al cargar imágenes.</p>";
+            }
+
+        }
+
 
     document.getElementById("prev").onclick = () => {
       const num = parseInt(capitulo.split("-")[1]) - 1;

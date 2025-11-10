@@ -51,7 +51,7 @@
     </main>
 
     <script>
-        const API = "http://localhost:3000/api/manhwas";
+        const API = "https://manhwashaven.onrender.com/api";
         const nombreSelect = document.getElementById("nombre");
         const form = document.getElementById("form-container");
         const msg = document.getElementById("mensaje");
@@ -78,7 +78,7 @@
         });
 
         async function cargarLista() {
-            const res = await fetch(API);
+            const res = await fetch(`${API}/manhwas`);
             const manhwas = await res.json();
             nombreSelect.innerHTML = `<option value="">Selecciona...</option>` +
                 manhwas.map(m => `<option value="${m.nombre}">${m.nombre}</option>`).join("");
@@ -90,7 +90,7 @@
                 form.style.display = "none";
                 return;
             }
-            const res = await fetch(API);
+            const res = await fetch(`${API}/manhwas`);
             const manhwas = await res.json();
             const manhwa = manhwas.find(m => m.nombre === nombre);
 
@@ -135,8 +135,10 @@
                 generos
             };
 
+            msg.textContent = "Guardando cambios...";
+
             try {
-                const res = await fetch(`${API}/${encodeURIComponent(nombre)}/metadata`, {
+                const res = await fetch(`${API}/manhwas/${encodeURIComponent(nombre)}/metadata`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)

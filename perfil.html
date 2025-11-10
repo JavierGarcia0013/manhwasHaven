@@ -45,5 +45,92 @@
     <footer>
         <p>© 2025 Manhwas Haven - Todos los derechos reservados.</p>
     </footer>
+    <script>
+        const API = "https://manhwashaven.onrender.com/api";
+
+        async function cargarPerfil() {
+            const usuario = localStorage.getItem("usuario");
+            const token = localStorage.getItem("token");
+
+            if (!usuario || !token) {
+                document.getElementById("perfil-info").innerHTML = `
+            <p>Debes iniciar sesión para ver tu perfil.</p>
+            <a href="iniciar-sesion.html" class="user-btn highlight">Ir al inicio de sesión</a>
+          `;
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/users/perfil`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+
+                if (!res.ok) throw new Error("Error al cargar el perfil");
+
+                const data = await res.json();
+
+                document.getElementById("perfil-info").innerHTML = `
+            <div class="perfil-card">
+              <h3>Información de tu cuenta</h3>
+              <form id="form-perfil">
+                <label>Usuario:</label>
+                <input type="text" id="usuario" value="${data.usuario}" required>
+
+                <label>Correo:</label>
+                <input type="email" id="correo" value="${data.correo}" required>
+
+                <button type="submit" class="highlight">Guardar cambios</button>
+                <button type="button" id="cerrar-sesion">Cerrar sesión</button>
+              </form>
+
+              <p id="mensaje" style="margin-top: 10px;"></p>
+            </div>
+          `;
+
+                // Guardar cambios
+                const form = document.getElementById("form-perfil");
+                form.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const usuarioNuevo = document.getElementById("usuario").value.trim();
+                    const correoNuevo = document.getElementById("correo").value.trim();
+
+                    try {
+                        const res = await fetch(`${API}/users/actualizar`, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ usuario: usuarioNuevo, correo: correoNuevo })
+                        });
+
+                        const result = await res.json();
+                        document.getElementById("mensaje").textContent = result.msg || "Datos actualizados correctamente.";
+                        document.getElementById("mensaje").style.color = res.ok ? "#0f0" : "#f33";
+
+                        if (res.ok) localStorage.setItem("usuario", usuarioNuevo);
+                    } catch (err) {
+                        document.getElementById("mensaje").textContent = "Error al actualizar los datos.";
+                        document.getElementById("mensaje").style.color = "#f33";
+                    }
+                };
+
+                // Cerrar sesión
+                document.getElementById("cerrar-sesion").onclick = () => {
+                    localStorage.clear();
+                    window.location.href = "iniciar-sesion.html";
+                };
+            } catch (error) {
+                document.getElementById("perfil-info").innerHTML = `<p>Error al obtener los datos del perfil.</p>`;
+                console.error(error);
+            }
+        }
+
+        cargarPerfil();
+    </script>
+
+
 </body>
 </html>

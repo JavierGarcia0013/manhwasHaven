@@ -59,6 +59,42 @@
     <footer>
         <p>© 2025 Manhwas Haven - Todos los derechos reservados.</p>
     </footer>
+    <script>
+        document.getElementById("register-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const nombre = document.getElementById("nuevo-usuario").value.trim();
+            const correo = document.getElementById("nuevo-email").value.trim();
+            const contrasena = document.getElementById("nuevo-contrasena").value.trim();
+
+            if (!nombre || !correo || !contrasena) {
+                alert("Por favor completa todos los campos.");
+                return;
+            }
+
+            try {
+                const res = await fetch("https://manhwashaven.onrender.com/api/users/registrar", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ usuario: nombre, correo, contrasena })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert("✅ Registro exitoso. Se ha enviado un correo de confirmación si es necesario.");
+                    window.location.href = "iniciar-sesion.html";
+                } else {
+                    alert(data.msg || "Error al registrarse.");
+                }
+            } catch (err) {
+                console.error("❌ Error de conexión:", err);
+                alert("No se pudo conectar con el servidor. Intenta nuevamente.");
+            }
+        });
+    </script>
+
+
 </body>
 </html>
 
