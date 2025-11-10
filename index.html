@@ -73,12 +73,12 @@
                     const cont = document.getElementById("ultimos-manhwas");
                     cont.innerHTML = recientes.length
                         ? recientes.map(m => `
-                                <div class="manhwa-card" style="cursor:pointer" onclick="window.location='manhwa.html?nombre=${m.nombre}&cap=capitulo-1'">
-                                 <img src="https://manhwashaven.onrender.com${m.portada}" alt="${m.nombre}">
-                                  <h4>${m.nombre}</h4>
-                                  <button class="leer-btn">Leer</button>
-                                </div>
-                              `).join("")
+                                        <div class="manhwa-card" style="cursor:pointer" onclick="window.location='manhwa.html?nombre=${m.nombre}&cap=capitulo-1'">
+                                         <img src="https://manhwashaven.onrender.com${m.portada}" alt="${m.nombre}">
+                                          <h4>${m.nombre}</h4>
+                                          <button class="leer-btn">Leer</button>
+                                        </div>
+                                      `).join("")
                         : "<p>No hay nuevos manhwas recientes.</p>";
                 });
 
@@ -94,11 +94,11 @@
 
                     const carousel = document.getElementById("carousel");
                     carousel.innerHTML = destacados.map(m => `
-                      <div class="carousel-item" onclick="window.location='manhwa.html?nombre=${m.nombre}'">
-                        <img src="https://manhwashaven.onrender.com${m.portada}" alt="${m.nombre}">
-                        <h4>${m.nombre}</h4>
-                      </div>
-                    `).join("");
+                              <div class="carousel-item" onclick="window.location='manhwa.html?nombre=${m.nombre}'">
+                                <img src="https://manhwashaven.onrender.com${m.portada}" alt="${m.nombre}">
+                                <h4>${m.nombre}</h4>
+                              </div>
+                            `).join("");
 
                     // Controles del carrusel
                     let scrollPos = 0;
@@ -119,7 +119,9 @@
 
             cargarDestacados();
         </script>
-
+        <script async type="application/javascript" src="https://a.pemsrv.com/ad-provider.js"></script>
+        <ins class="eas6a97888e33" data-zoneid="5767754"></ins>
+        <script>(AdProvider = window.AdProvider || []).push({ "serve": {} });</script>
     </main>
 
     <footer>
