@@ -354,16 +354,6 @@ export const eliminarManhwa = async (req, res) => {
   }
 };
 
-export {
-    subirManhwa,
-    obtenerManhwas,
-    listarCapitulos,
-    obtenerImagenesCapitulo,
-    actualizarMetadata,
-    obtenerFavoritos,
-    agregarFavorito,
-    eliminarFavorito,
-    eliminarManhwa // ✅ agrega esta línea
-};
+
 
 
