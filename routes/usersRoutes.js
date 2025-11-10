@@ -10,11 +10,11 @@ import {
 import { getPerfil, actualizarUsuario } from "../controllers/usersController.js";
 import { verificarToken } from "../middlewares/authMiddleware.js";
 
+const router = express.Router();
+
 router.get("/perfil", verificarToken, getPerfil);
 router.put("/actualizar", verificarToken, actualizarUsuario);
 
-
-const router = express.Router();
 
 // ==================== RUTAS DE USUARIOS ====================
 
