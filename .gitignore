@@ -1,27 +1,64 @@
-# Archivos del entorno
+# ===============================
+# 🌐 CONFIGURACIÓN GENERAL
+# ===============================
 .env
-
-# Dependencias de Node.js
 node_modules/
-
-# Archivos subidos manualmente
 uploads/
+dist/
+build/
+.vscode/
+.idea/
+.vs/
+*.vsidx
+*.cache
+*.tmp
 
-# Archivos temporales del sistema
+# ===============================
+# 🧱 ARCHIVOS TEMPORALES DEL SISTEMA
+# ===============================
 .DS_Store
 Thumbs.db
-
-# Logs
+desktop.ini
+*.log
+logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-logs/
-*.log
 
-# Archivos de compilaci�n
-dist/
-build/
+# ===============================
+# 🧩 COMPILACIONES / DEPLOY
+# ===============================
+coverage/
+tmp/
+.cache/
+out/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Configuraci�n del editor
+# ===============================
+# ⚙️ GITHUB / RENDER / DEPLOY
+# ===============================
+# Ignorar archivos locales o secretos de despliegue
+render.yaml
+*.pid
+*.seed
+*.env.backup
+
+# ===============================
+# 📂 ARCHIVOS NO NECESARIOS
+# ===============================
+*.zip
+*.rar
+*.tar
+*.7z
+
+# ===============================
+# 🧩 ESPECÍFICOS DEL FRONTEND
+# ===============================
+# Si usás GitHub Pages o frameworks estáticos
+node_modules/
+.vs/
 .vscode/
-.idea/
+cache/
