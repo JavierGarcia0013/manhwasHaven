@@ -7,6 +7,12 @@ import {
     verifyCode,
     resetPassword,
 } from "../controllers/usersController.js";
+import { getPerfil, actualizarUsuario } from "../controllers/usersController.js";
+import { verificarToken } from "../middlewares/authMiddleware.js";
+
+router.get("/perfil", verificarToken, getPerfil);
+router.put("/actualizar", verificarToken, actualizarUsuario);
+
 
 const router = express.Router();
 

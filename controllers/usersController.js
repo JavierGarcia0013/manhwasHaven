@@ -17,7 +17,6 @@ const transporter = nodemailer.createTransport({
 
 // ==================== REGISTRO ====================
 export const register = (req, res) => {
-    // acepta ambos nombres para compatibilidad
     const user = req.body.user || req.body.usuario;
     const email = req.body.email;
     const pass = req.body.pass || req.body.contrasena;
@@ -39,14 +38,14 @@ export const register = (req, res) => {
                 "INSERT INTO usuarios (user, email, pass) VALUES (?, ?, ?)",
                 [user, email, hashedPass],
                 (err) => {
-                    if (err) return res.status(500).json({ msg: "Error al registrar usuario" });
+                    if (err)
+                        return res.status(500).json({ msg: "Error al registrar usuario" });
                     res.json({ msg: "✅ Registro exitoso" });
                 }
             );
         }
     );
 };
-
 
 // ==================== LOGIN ====================
 export const login = (req, res) => {
@@ -88,6 +87,45 @@ export const login = (req, res) => {
     );
 };
 
+// ==================== PERFIL DEL USUARIO ====================
+export const getPerfil = (req, res) => {
+    const userId = req.user?.id;
+
+    if (!userId) return res.status(401).json({ msg: "No autorizado" });
+
+    db.query(
+        "SELECT id, user AS usuario, email AS correo FROM usuarios WHERE id = ?",
+        [userId],
+        (err, results) => {
+            if (err) return res.status(500).json({ msg: "Error interno" });
+            if (results.length === 0)
+                return res.status(404).json({ msg: "Usuario no encontrado" });
+            res.json(results[0]);
+        }
+    );
+};
+
+// ==================== ACTUALIZAR USUARIO ====================
+export const actualizarUsuario = (req, res) => {
+    const userId = req.user?.id;
+    const { usuario, correo } = req.body;
+
+    if (!userId) return res.status(401).json({ msg: "No autorizado" });
+    if (!usuario || !correo)
+        return res.status(400).json({ msg: "Todos los campos son obligatorios" });
+
+    db.query(
+        "UPDATE usuarios SET user = ?, email = ? WHERE id = ?",
+        [usuario, correo, userId],
+        (err, result) => {
+            if (err) return res.status(500).json({ msg: "Error al actualizar perfil" });
+            if (result.affectedRows === 0)
+                return res.status(404).json({ msg: "Usuario no encontrado" });
+
+            res.json({ msg: "Perfil actualizado correctamente." });
+        }
+    );
+};
 
 // ==================== CAMBIAR CONTRASEÑA ====================
 export const changePassword = (req, res) => {
@@ -187,3 +225,4 @@ export const resetPassword = async (req, res) => {
         res.status(500).json({ msg: "Error interno del servidor" });
     }
 };
+

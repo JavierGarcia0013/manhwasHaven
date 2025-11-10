@@ -6,6 +6,11 @@ import {
     listarCapitulos,
     obtenerImagenesCapitulo
 } from "../controllers/manhwasController.js";
+import {
+    obtenerFavoritos,
+    agregarFavorito,
+    eliminarFavorito
+} from "../controllers/manhwasController.js";
 
 const router = express.Router();
 
@@ -33,6 +38,10 @@ import { actualizarMetadata } from "../controllers/manhwasController.js";
 // 📝 Actualizar metadata de un manhwa
 router.put("/:nombre/metadata", actualizarMetadata);
 
+// Ruta para obtener los manhwas favoritos del usuario
+router.get("/favoritos/:id_usuario", obtenerFavoritos);
+router.post("/favoritos", agregarFavorito);
+router.delete("/favoritos", eliminarFavorito);
 
 export default router;
 

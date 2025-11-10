@@ -6,6 +6,7 @@ import manhwasRoutes from "./routes/manhwasRoutes.js";
 import { db } from "./db.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import { verificarToken } from "./middlewares/authMiddleware.js";
 
 dotenv.config();
 
@@ -44,6 +45,12 @@ app.use("/api/manhwas", manhwasRoutes);
 app.get("/", (req, res) => {
     res.send("🚀 API de Manhwas Haven funcionando correctamente!");
 });
+
+// Rutas públicas (no requieren login)
+app.use("/api/users", usersRoutes);
+
+// Middleware global — protege todo lo que se defina después de aquí
+app.use(verificarToken);
 
 // ==================== INICIAR SERVIDOR ====================
 const PORT = process.env.PORT || 3000;
